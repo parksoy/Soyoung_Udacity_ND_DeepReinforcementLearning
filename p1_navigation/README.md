@@ -52,13 +52,6 @@ Please ignore error message about mujoco installation since box2d/* was installe
 ### Instructions
 
 Follow the instructions in `Navigation.ipynb` to get started with training your own agent!  
-
-### (Optional) Challenge: Learning from Pixels
-
-After you have successfully completed the project, if you're looking for an additional challenge, you have come to the right place!  In the project, your agent learned from information such as its velocity, along with ray-based perception of objects around its forward direction.  A more challenging task would be to learn directly from pixels!
-
-To solve this harder task, you'll need to download a new Unity environment.  This environment is almost identical to the project environment, where the only difference is that the state is an 84 x 84 RGB image, corresponding to the agent's first-person view.  (**Note**: Udacity students should not submit a project with this new environment.)
-
 You need only select the environment that matches your operating system:
 - Linux: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/VisualBanana_Linux.zip)
 - Mac OSX: [click here](https://s3-us-west-1.amazonaws.com/udacity-drlnd/P1/Banana/VisualBanana.app.zip)
@@ -80,15 +73,15 @@ env = UnityEnvironment(file_name="Banana.app", worker_id=43, seed=1, **no_graphi
 ```
 (2) Don't just close env.
 
-NEVER CLOSE when still work is left with the env. \
-# Once closed, env instanciation even doesnt work with the message: "handle is closed".
-# Once closed, even if jupyter notebook is restarted,  env does't respond by invoking, and\
-# and shows the following message:
-# " The Unity environment took too long to respond. Make sure that :
-#	 The environment does not need user interaction to launch
-#	 The Academy and the External Brain(s) are attached to objects in the Scene
-#	 The environment and the Python interface have compatible versions."
-# Once closed and want to rerun this jn, all you can do is restart the whole laptop.
+NEVER CLOSE when still work is left with the env.
+Once closed, env instanciation even doesnt work with the message: "handle is closed".
+Once closed, even if jupyter notebook is restarted,  env does't respond by invoking, and
+and shows the following message:
+" The Unity environment took too long to respond. Make sure that :
+The environment does not need user interaction to launch
+The Academy and the External Brain(s) are attached to objects in the Scene
+The environment and the Python interface have compatible versions."
+Once closed and want to rerun this jn, all you can do is restart the whole laptop.
 
 ```
 env.close()
