@@ -21,11 +21,19 @@ and was integrated into Unity ML-Agents environment. The agent's actions are con
 DQN network is used for each qnetwork_local and qnetwork_target.
 
 ## TO DO:
-*DQN's key features - such as the use of experience replay and soft updates at a minimum. Since you also made use of the epsilon-greedy action selection mechanism, you should also briefly describe that in your report, along with any other unique features of your implementation (such as the UPDATE_EVERY section of your agent's step() method). Although you described the size of your NN hidden layers, your hyperparameter description should include other hyperparameters you used (such as TAU and Epsilon at a minimum), including a brief description of the purpose of each hyper parameter and the values you chose in your implementation.
+DQN has the following key features :
 
-*You have correctly decoupled parameters being updated for learning from the ones being used to produce target values. Implementing the soft update process helps to smooth out individual learning batches by preventing large fluctuations in actions from being generated during learning. You have correctly applied the Tau hyper parameter to control your soft-update process in your agent's Learn() method.
-*You are correctly using an experience replay buffer, storing (and later, sampling) experience tuples consisting of (state, action, reward, next_state, done) fields. Your agent's step() function is correctly saving new experience tuples as they are encountered and then randomly selecting experience tuples to learn from.
-*Your agent's act() function includes an epsilon-greedy action selection mechanism to encourage exploratory behavior in the agent, particularly during the early episodes. You are correctly using the Epsilon hyper parameter to control this process in your agent's act() method.
+*Experience replay buffer(ReplayBuffer):
+this is to store and sample the experience tuples consisting of (state, action, reward, next_state, done) fields
+
+* soft updates: to smooth out individual learning batches by preventing large fluctuations in actions from being generated during learning.
+
+*the epsilon-greedy action selection-
+*UPDATE_EVERY section of  step() method. step() function is to save new experience tuples as they are encountered and then randomly selecting experience tuples to learn from.
+
+*decoupled parameters being updated for learning from the ones being used to produce target values.
+
+
 
 
 
@@ -42,13 +50,16 @@ self.fc3 = nn.Linear(fc2_units, action_size)
 Each layer is forwarded and mapped through relu.
 
 
-(2) The chosen hyperparameters
+(2) The purpose of each hyperparameter and the values
 
 The same given hyperparameters are used as the following:
 ```
 fc1_units=64,
 fc2_units=64
 ```
+
+TAU  :to control your soft-update process in your agent's Learn() method.
+Epsilon : in act() function , an epsilon-greedy action selection mechanism is used to encourage exploratory behavior in the agent, particularly during the early episodes. Epsi value is set to control this process -when high, more expoitation is encouraged, when low, more exploration is encouraged.
 
 
 # A plot of rewards
