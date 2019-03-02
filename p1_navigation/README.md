@@ -73,6 +73,10 @@ env = UnityEnvironment(file_name="Banana.app", worker_id=43, seed=1, **no_graphi
 ```
 (2) Don't just close env.
 
+```
+env.close()
+```
+
 NEVER CLOSE when still work is left with the env.
 Once closed, env instanciation even doesnt work with the message: "handle is closed".
 Once closed, even if jupyter notebook is restarted,  env does't respond by invoking, and
@@ -82,7 +86,3 @@ The environment does not need user interaction to launch
 The Academy and the External Brain(s) are attached to objects in the Scene
 The environment and the Python interface have compatible versions."
 Once closed and want to rerun this jn, all you can do is restart the whole laptop.
-
-```
-env.close()
-```
