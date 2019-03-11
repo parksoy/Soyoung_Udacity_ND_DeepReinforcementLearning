@@ -101,9 +101,21 @@ A plot of rewards per episode is included to illustrate that the agent is able t
 
 # Ideas for Future Work
 
-In order to improve the agent's performance (less number of episodes to be explored to achieve the same score of 13 or more), the following ideas are considered:
+#### (1) With the same DQN, the hyperparameters other than number of units in each layer can be varied.  
 
-(1) The more complex network other than linear neural networks of 64 units in the first and second hidden layers can be considered. For example, if 128 units are used in the first layer to capture more links between states and action, would it make the learning faster?
+For example, since navigation time between bananas is pretty short, I need to eat yellow banana as quickly as when available at sight before advancing to unwanted place. If I give more discount on the future rewards by lowering GAMMA from 0.99, would it learn better and achieve higher score?
 
-(2) The hyperparameters other than number of units in each layer can be varied.
-For example, since navigation time between bananas is pretty short, I need to eat yellow banana as quickly as when available at sight before advancing to unwanted place. If I give more discount on the future rewards by lowering GAMMA from 0.99, would it learn faster?
+#### (2) Fundamental learning algorithm expansion  
+
+In order to improve the agent's performance faster and to achieve higher score, this [reference](https://arxiv.org/pdf/1710.02298.pdf) summarizes, limitations of conventional DQN and discusses several fundamental learning strategy changes as following and they can be pursued for further improvement beyond score of 13 with 434 episodes for this banana project.
+
+* Conventional Q-learning could have an overestimation bias due to the maximization step. Double Q-learning addresses this overestimation issue by decoupling, in the maximization performed for the bootstrap target, the selection of the action from its evaluation.  
+
+* DQN samples uniformly from the replay buffer. Ideally, we want to *sample more frequently* those transitions from which there is much to learn. As a proxy for learning potential, __prioritized experience replay__(Schaul et al. 2015) samples transitions with probability relative to the last encountered absolute TD error. New transitions are inserted into the replay buffer with maximum priority, providing a bias towards recent transitions. Note that stochastic transitions might also
+be favored, even when there is little left to learn about them.
+
+* The __dueling network__ for value based RL features two streams of computation. The value and advantage streams share convolutional encoder, and merged by a special aggregator (Wang et al. 2016).
+
+More references (suggested by reviewer #2):  
+* [Double Q-learning](https://arxiv.org/pdf/1509.06461.pdf)  
+* [Dueling Network](https://arxiv.org/pdf/1511.06581.pdf)  
