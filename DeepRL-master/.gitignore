@@ -1,3 +1,10 @@
+*.crdownload
+p2_continuous-control/Reacher.app/
+p2_continuous-control/Reacher_multi.app/
+p2_continuous-control/Crawler.app/
+*nohub.out
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

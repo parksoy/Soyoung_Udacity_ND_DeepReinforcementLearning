@@ -108,3 +108,39 @@ ENV/
 .idea/modules.xml
 .idea/vcs.xml
 .idea/workspace.xml
+*.crdownload
+*.xml
+*.crdownload
+*.nib
+*.assets
+*.dll
+*.aspx
+*.config
+*.ini
+*.tif
+*.resS
+*.plist
+*.png
+*.dylib
+*.browser
+*.map
+p2_continuous-control/Crawler.app/Contents/Mono/etc/mono/config
+*.bundle
+p2_continuous-control/Crawler.app/Contents/MacOS/Crawler
+p2_continuous-control/Crawler.app/Contents/MonoBleedingEdge/etc/mono/config
+p2_continuous-control/Crawler.app/Contents/Resources/Data/globalgamemanagers
+p2_continuous-control/Crawler.app/Contents/Resources/Data/level0
+p2_continuous-control/Crawler.app/Contents/Resources/Data/Resources/unity_builtin_extra
+p2_continuous-control/Crawler.app/Contents/Resources/unity default resources
+p2_continuous-control/Reacher_multi.app/Contents/MacOS/Reacher
+p2_continuous-control/Reacher_multi.app/Contents/Mono/etc/mono/config
+p2_continuous-control/Reacher_multi.app/Contents/MonoBleedingEdge/etc/mono/config
+p2_continuous-control/Reacher_multi.app/Contents/Resources/Data/globalgamemanagers
+p2_continuous-control/Reacher_multi.app/Contents/Resources/Data/level0
+p2_continuous-control/Reacher_multi.app/Contents/Resources/Data/Resources/unity_builtin_extra
+p2_continuous-control/Reacher_multi.app/Contents/Resources/unity default resources
+*.crdownload
+*.crdownload
+pong_REINCOFCE/Unconfirmed 122952.crdownload
+DeepRL-master/nohup.out
+DeepRL-master/mydockerbuild/Dockerfile

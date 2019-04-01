@@ -26,30 +26,30 @@ RUN rm -rf /var/lib/apt/lists/*
 # This is absolutely optional and not recommended. You can remove them safely.
 # But be sure to make corresponding changes to all the scripts.
 
-WORKDIR /shaang
-RUN chmod -R 777 /shaang
+WORKDIR /parksoy
+RUN chmod -R 777 /parksoy
 RUN chmod -R 777 /usr/local
 
-RUN useradd -d /shaang -u 13071 shaang
-USER shaang
+RUN useradd -d /parksoy -u 13071 parksoy
+USER parksoy
 
-RUN mkdir -p /shaang/.mujoco \
+RUN mkdir -p /parksoy/.mujoco \
     && wget https://www.roboti.us/download/mjpro150_linux.zip -O mujoco.zip \
-    && unzip mujoco.zip -d /shaang/.mujoco \
+    && unzip mujoco.zip -d /parksoy/.mujoco \
     && rm mujoco.zip
 RUN wget https://www.roboti.us/download/mujoco200_linux.zip -O mujoco.zip \
-    && unzip mujoco.zip -d /shaang/.mujoco \
+    && unzip mujoco.zip -d /parksoy/.mujoco \
     && rm mujoco.zip
 
 # Make sure you have a license, otherwise comment this line out
 # Of course you then cannot use Mujoco and DM Control, but Roboschool is still available
-COPY ./mjkey.txt /shaang/.mujoco/mjkey.txt
+COPY ./mjkey.txt /parksoy/.mujoco/mjkey.txt
 
-ENV LD_LIBRARY_PATH /shaang/.mujoco/mjpro150/bin:${LD_LIBRARY_PATH}
-ENV LD_LIBRARY_PATH /shaang/.mujoco/mjpro200_linux/bin:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH /parksoy/.mujoco/mjpro150/bin:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH /parksoy/.mujoco/mjpro200_linux/bin:${LD_LIBRARY_PATH}
 
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 RUN pip install git+git://github.com/openai/baselines.git@8e56dd#egg=baselines
 
-WORKDIR /shaang/DeepRL
+WORKDIR /parksoy/DeepRL
