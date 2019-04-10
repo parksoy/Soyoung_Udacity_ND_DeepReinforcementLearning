@@ -1,8 +1,10 @@
 import numpy as np
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+# %load_ext autoreload
+# %autoreload 2
 
 def hidden_init(layer):
     fan_in = layer.weight.data.size()[0]

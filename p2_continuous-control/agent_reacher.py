@@ -2,12 +2,15 @@ import numpy as np
 import random
 import copy
 from collections import namedtuple, deque
-
-from model_reacher import Actor, Critic
-
+from nnmodels_reacher import Actor, Critic
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
+import os
+
+# %load_ext autoreload
+# %autoreload 2
+
 
 BUFFER_SIZE = int(1e5)  # replay buffer size, (2560) (20 states, 20 action, 20 rewards, 20 next_states, 20 dones)
 BATCH_SIZE = 2560        # minibatch size
@@ -54,7 +57,7 @@ class Agent():
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
         self.memory.add(state, action, reward, next_state, done) #300 memory added every episode
-        print("\n LALALALA self.memory ", len(self.memory))
+        print("LALALALA self.memory ", len(self.memory))
         # Learn, if enough samples are available in memory
         if len(self.memory) > BATCH_SIZE: #2560
             experiences = self.memory.sample() #(2560) (20 states, 20 action, 20 rewards, 20 next_states, 20 dones)
