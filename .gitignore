@@ -139,6 +139,11 @@ p2_continuous-control/Reacher_multi.app/Contents/Resources/Data/globalgamemanage
 p2_continuous-control/Reacher_multi.app/Contents/Resources/Data/level0
 p2_continuous-control/Reacher_multi.app/Contents/Resources/Data/Resources/unity_builtin_extra
 p2_continuous-control/Reacher_multi.app/Contents/Resources/unity default resources
+p2_continuous-control/p2_reference_Continuous_Control_forkedFromwhiterabbitobj_Continuous_Control/saves
+p2_continuous-control/p2_reference_Continuous_Control_forkedFromwhiterabbitobj_Continuous_Control/weights
+p2_continuous-control/p2_reference_Continuous_Control_forkedFromwhiterabbitobj_Continuous_Control/images
+
+
 *.crdownload
 *.crdownload
 pong_REINCOFCE/Unconfirmed 122952.crdownload
