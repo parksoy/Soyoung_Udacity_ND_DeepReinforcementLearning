@@ -1,3 +1,5 @@
+%reset
+
 #cwd is where runner_reacher.py is located
 import os
 cwd='/Users/parksoy/Desktop/deep-reinforcement-learning/p2_continuous-control/'
