@@ -1,5 +1,11 @@
-from unityagents import UnityEnvironment
+#cwd is where runner_reacher.py is located
 import os
+cwd='/Users/parksoy/Desktop/deep-reinforcement-learning/p2_continuous-control/'
+if not os.getcwd()==cwd:
+    os.chdir('/Users/parksoy/Desktop/deep-reinforcement-learning/p2_continuous-control/')
+print(os.getcwd())
+
+from unityagents import UnityEnvironment
 import numpy as np
 import random
 import torch
@@ -14,10 +20,6 @@ from collections import deque
 %load_ext autoreload
 %autoreload 2
 
-#cwd is where runner_reacher.py is located
-cwd='/Users/parksoy/Desktop/deep-reinforcement-learning/p2_continuous-control/'
-if not os.getcwd()==cwd:
-    os.chdir('/Users/parksoy/Desktop/deep-reinforcement-learning/p2_continuous-control/')
 
 ####################################
 #1.initiate UnityEnvironmemt
@@ -70,7 +72,7 @@ while True:
     states = next_states                               # roll over states to next time step
     if np.any(dones):                                  # exit loop if episode finished
         break
-print('Total score (averaged over agents) this episode: {}'.format(np.mean(scores)))
+print('Total score (averaged over agents) this episode: %.2f' %(np.mean(scores)))
 
 ####################################
 #4. Train with DDPG
@@ -83,10 +85,10 @@ agent = Agent(state_size=state_size, action_size=action_size, random_seed=2) #st
 #dimension 0
 env_info = env.reset(train_mode=True)[brain_name]
 states = env_info.vector_observations
-print(states[0].shape)
+print("state=", type(state), state)
 
 #n_episodes=1000, max_t=300, print_every=100
-def ddpg_store_experience_getScore(n_episodes=3, max_t=2, print_every=10):
+def train_storeExperience_getScore(n_episodes=3, max_t=2, print_every=10):
     scores_deque = deque(maxlen=print_every)
     scores = []
     for i_episode in range(1, n_episodes+1):
@@ -115,29 +117,39 @@ def ddpg_store_experience_getScore(n_episodes=3, max_t=2, print_every=10):
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
     return scores
 
-scores = ddpg_store_experience_getScore()
+scores = train_storeExperience_getScore()
 print("scores=",scores)
 print("Done!")
 
-
+####################################
 #Plot Score vs. Episode
+####################################
 fig = plt.figure()
 ax = fig.add_subplot(111)
 plt.plot(np.arange(1, len(scores)+1), scores)
 plt.ylabel('Score')
 plt.xlabel('Episode #')
+plt.title('Score vs. Episode #')
 plt.show()
 
-#5. Watch a Smart Agent!
+#############################################
+#5. Evaluate a Trained Smart Agent
+#############################################
 agent.actor_local.load_state_dict(torch.load('p2_checkpoint_actor.pth'))
 agent.critic_local.load_state_dict(torch.load('p2_checkpoint_critic.pth'))
 
-state = env.reset()
-for t in range(200):
-    action = agent.act(state, add_noise=False)
-    env.render()
-    state, reward, done, _ = env.step(action)
-    if done:
+env_info = env.reset(train_mode=False)[brain_name]
+states = env_info.vector_observations
+print("state=", type(state), state)
+for t in range(10): #range(200)
+    action = agent.act(states, add_noise=False) #expected np.ndarray (got dict)
+    action = np.clip(action, -1, 1)
+    env_info = env.step([action])[brain_name]
+    next_states = env_info.vector_observations
+    rewards = env_info.rewards
+    dones = env_info.local_done
+    if dones:
+        print("action=\n",action,"\nrewards=\n",rewards,"\ndones=\n",dones)
         break
 
 #env.close()
