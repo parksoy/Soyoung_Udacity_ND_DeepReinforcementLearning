@@ -22,7 +22,6 @@ from collections import deque
 %load_ext autoreload
 %autoreload 2
 
-
 ####################################
 #1.initiate UnityEnvironmemt
 ####################################
