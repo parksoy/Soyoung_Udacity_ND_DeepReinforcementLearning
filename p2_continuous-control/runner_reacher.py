@@ -17,13 +17,16 @@ import matplotlib.pyplot as plt
 from agent_reacher import Agent
 from nnmodels_reacher import Actor, Critic
 from collections import deque
+from config_settings import Args
+from replay_buffer import ReplayBuffer
+from plotter_reacher import plot_scoreOverEpisodes
 %matplotlib inline
 
 %load_ext autoreload
 %autoreload 2
 
 ####################################
-#1.initiate UnityEnvironmemt
+#1.Initiate UnityEnvironmemt, call in all settings
 ####################################
 '''
 UnityTimeOutException: The Unity environment took too long to respond. Make sure that :
@@ -35,6 +38,8 @@ env = UnityEnvironment(file_name='Reacher_multi.app', no_graphics=True)
 # get the default brain
 brain_name = env.brain_names[0]
 brain = env.brains[brain_name]
+
+args=Args()
 
 ####################################
 #2. EDA:the State and Action Spaces
@@ -78,27 +83,31 @@ print('Total score (averaged over agents) this episode: %.2f' %(np.mean(scores))
 ####################################
 #4. Train with DDPG
 ####################################
-#states.shape-(20, 33) len(rewards) #20. rewards is list action_size=4
+#nd array states.shape-(20, 33) len(rewards)=20. rewards is list, action_size=4
 env_info = env.reset(train_mode=True)[brain_name]
 agent = Agent(state_size=state_size, action_size=action_size, random_seed=2) #state_size 33, action_size 4
-
-#The size of tensor a (51200) must match the size of tensor b (2560) at non-singleton
-#dimension 0
-env_info = env.reset(train_mode=True)[brain_name]
 states = env_info.vector_observations
-print("state=", type(state), state)
 
-#n_episodes=1000, max_t=300, print_every=100
-def train_storeExperience_getScore(n_episodes=3, max_t=2, print_every=10):
+
+def train_storeExperience_getScore(n_episodes=args.num_episodes,
+                                    max_t=args.max_steps,
+                                    print_every=args.print_every):
     scores_deque = deque(maxlen=print_every)
     scores = []
+    #agent.t_step=0
+    print("Will start iteration of %d..." %args.num_episodes)
+
     for i_episode in range(1, n_episodes+1):
+        print("\n####################")
+        print("episode #=", i_episode)
+        print("####################")
         env_info = env.reset(train_mode=True)[brain_name]
         states = env_info.vector_observations
         agent.reset()
         score = 0
         for t in range(max_t):
-            action = agent.act(states) #(20,33) or (33,)
+            print("  step#=",t)
+            action = agent.act(states) #(20,33)
             action = np.clip(action, -1, 1)
             env_info = env.step([action])[brain_name]
             next_states = env_info.vector_observations
@@ -116,22 +125,13 @@ def train_storeExperience_getScore(n_episodes=3, max_t=2, print_every=10):
         torch.save(agent.critic_local.state_dict(), 'p2_checkpoint_critic.pth')
         if i_episode % print_every == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
+    plot_scoreOverEpisodes(scores)
+    print("Final scores=",scores)
+    print("Done!")
     return scores
 
 scores = train_storeExperience_getScore()
-print("scores=",scores)
-print("Done!")
 
-####################################
-#Plot Score vs. Episode
-####################################
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.plot(np.arange(1, len(scores)+1), scores)
-plt.ylabel('Score')
-plt.xlabel('Episode #')
-plt.title('Score vs. Episode #')
-plt.show()
 
 #############################################
 #5. Evaluate a Trained Smart Agent
@@ -141,7 +141,6 @@ agent.critic_local.load_state_dict(torch.load('p2_checkpoint_critic.pth'))
 
 env_info = env.reset(train_mode=False)[brain_name]
 states = env_info.vector_observations
-print("state=", type(state), state)
 for t in range(10): #range(200)
     action = agent.act(states, add_noise=False) #expected np.ndarray (got dict)
     action = np.clip(action, -1, 1)

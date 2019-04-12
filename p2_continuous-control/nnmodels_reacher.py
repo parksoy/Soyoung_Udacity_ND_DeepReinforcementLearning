@@ -2,9 +2,12 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from config_settings import Args
 
 # %load_ext autoreload
 # %autoreload 2
+
+args=Args()
 
 def hidden_init(layer):
     fan_in = layer.weight.data.size()[0]
@@ -14,16 +17,14 @@ def hidden_init(layer):
 class Actor(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, seed, fc1_units=80, fc2_units=60): #States[0] (33,)
+    def __init__(self, state_size, action_size, seed, fc1_units=args.layer_sizes[0], fc2_units=args.layer_sizes[1]): #States[0] (33,)
         """Initialize parameters and build model.
         Params
-        ======
             state_size (int): Dimension of each state
             action_size (int): Dimension of each action
             seed (int): Random seed
             fc1_units (int): Number of nodes in first hidden layer
-            fc2_units (int): Number of nodes in second hidden layer
-        """
+            fc2_units (int): Number of nodes in second hidden layer """
         super(Actor, self).__init__()
         self.seed = torch.manual_seed(seed)
         self.fc1 = nn.Linear(state_size, fc1_units)
@@ -42,20 +43,17 @@ class Actor(nn.Module):
         x = F.relu(self.fc2(x))
         return F.tanh(self.fc3(x))
 
-
 class Critic(nn.Module):
     """Critic (Value) Model."""
-
-    def __init__(self, state_size, action_size, seed, fcs1_units=400, fc2_units=300):
+    
+    def __init__(self, state_size, action_size, seed, fcs1_units=args.layer_sizes[0], fc2_units=args.layer_sizes[1]):
         """Initialize parameters and build model.
         Params
-        ======
             state_size (int): Dimension of each state
             action_size (int): Dimension of each action
             seed (int): Random seed
             fcs1_units (int): Number of nodes in the first hidden layer
-            fc2_units (int): Number of nodes in the second hidden layer
-        """
+            fc2_units (int): Number of nodes in the second hidden layer """
         super(Critic, self).__init__()
         self.seed = torch.manual_seed(seed)
         self.fcs1 = nn.Linear(state_size, fcs1_units)
