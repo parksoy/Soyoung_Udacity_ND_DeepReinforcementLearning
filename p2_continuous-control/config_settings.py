@@ -1,7 +1,7 @@
 class Args:
-  num_episodes=2 #225 Original DDPG pendulum : n_episodes=1000
+  num_episodes=20 #2 #225 Original DDPG pendulum : n_episodes=1000
   pretrain=29 #5000 assert args.pretrain 5000 >= args.batch_size 128, "PRETRAIN less than BATCHSIZE."
-  max_steps=8 #1000  #Original DDPG pendulum : max_t=300
+  max_steps=20 #8 #1000  #Original DDPG pendulum : max_t=300
   batch_size=128
 
   actor_learn_rate=0.0005
@@ -30,7 +30,3 @@ class Args:
   filename=None
   save_dir='saves'
   device='cpu'
-
-args=Args()
-print(args)
-args.rollout
