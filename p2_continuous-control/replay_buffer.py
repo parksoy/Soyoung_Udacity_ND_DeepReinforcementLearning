@@ -17,19 +17,19 @@ class ReplayBuffer:
         self.batch_size = batch_size
         self.seed = random.seed(seed)
 
-    def add(self, state, action, reward, next_state): #, done
+    def add(self, states, actions, rewards, next_states): #, done
         """Add a new experience to memory."""
-        e = (state, action, reward, next_state)
-        self.memory.append(e)#return
+        experience = (states, actions, rewards, next_states)
+        self.memory.append(experience)#return
 
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
         batch = random.sample(self.memory, k=self.batch_size)
-        print("NOW # of SAMPLED EXPERIENCE from total \
-        memory %d : %d" %(len(self.memory), len(batch)))
-        print("type(batch)", type(batch), len(batch), type(zip(*batch)))
+        print("batch=",type(batch),batch)
+        print("zip(*batch)=",zip(*batch))
+
         states, actions, rewards, next_states = zip(*batch)
-        print("states=", type(states), len(states), states)
+        print("after unzip,states=" type(states),states)
 
         states = torch.cat(states).to(self.device)
         actions = torch.cat(actions).float().to(self.device)
@@ -43,7 +43,8 @@ class ReplayBuffer:
         next_states = torch.from_numpy(np.vstack([e.next_states for e in experiences if e is not None])).float().to(device)
         #dones = torch.from_numpy(np.vstack([e.done for e in experiences if e is not None]).astype(np.uint8)).float().to(device)
         '''
-        return (states, actions, rewards, next_states, dones)
+        experiences=(states, actions, rewards, next_states)
+        return  experiences #, dones
 
     def __len__(self):
         """Return the current size of internal memory."""

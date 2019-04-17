@@ -53,7 +53,14 @@ class Agent():
         """Save experience in replay memory, and use random sample from buffer to learn."""
 
         # Save experience / reward
-        self.memory.add(states, actions, rewards, next_states) #, done 300 memory added every episode
+
+        #Matt doll
+        #list(zip)
+        #self.memory.store_experience(experience)
+        self.memory.add(states, actions, rewards, next_states)
+
+        #pendulum
+        #self.memory.add(states, actions, rewards, next_states) #, done 300 memory added every episode
         print("Filling up self.memory %d th" %len(self.memory))
 
         # Learn, if enough samples are available in memory
@@ -62,16 +69,16 @@ class Agent():
             print("\nEnough buffer filled. Sampled %d goes into NN to learn.." %len(experiences))
             self.learn(experiences, GAMMA)
 
-    def act(self, state, add_noise=True):
+    def act(self, states, add_noise=True):
         """Returns actions for given state as per current policy."""
-        state = torch.from_numpy(state).float().to(device)
+        states = torch.from_numpy(states).float().to(device)
         self.actor_local.eval()
         with torch.no_grad():
-            action = self.actor_local(state).cpu().data.numpy()
+            actions = self.actor_local(states).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
-            action += self.noise.sample()
-        return np.clip(action, -1, 1)
+            actions += self.noise.sample()
+        return np.clip(actions, -1, 1)
 
     def reset(self):
         self.noise.reset()
@@ -89,7 +96,6 @@ class Agent():
 
         batch = self.memory.sample(self.batch_size)
         states, actions, rewards, next_states = batch
-
 
         # ---------------------------- update critic ---------------------------- #
         actions_next = self.actor_target(next_states) # Get predicted next-state actions and Q values from target models

@@ -96,9 +96,9 @@ def train_storeExperience_getScore(n_episodes=args.num_episodes,
         score = 0
         for t in range(max_t):
             print("  step#=",t)
-            action = agent.act(states) #(20,33)
-            action = np.clip(action, -1, 1)
-            env_info = env.step([action])[brain_name]
+            actions = agent.act(states) #(20,33)
+            actions = np.clip(actions, -1, 1)
+            env_info = env.step([actions])[brain_name]
             next_states = env_info.vector_observations
             rewards = env_info.rewards
             dones = env_info.local_done
