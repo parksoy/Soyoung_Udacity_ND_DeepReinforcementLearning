@@ -8,16 +8,19 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 import os
+from config_settings import Args
 
 # %load_ext autoreload
 # %autoreload 2
 
-BUFFER_SIZE = 3*int(1e5)  # replay buffer size, (2560) (20 states, 20 action, 20 rewards, 20 next_states, 20 dones)
-BATCH_SIZE = 128        # minibatch size, 128
-GAMMA = 0.99            # discount factor
-TAU = 1e-3              # for soft update of target parameters
-LR_ACTOR = 1e-4         # learning rate of the actor
-LR_CRITIC = 1e-3        # learning rate of the critic
+args=Args()
+
+BUFFER_SIZE = args.buffer_size #3*int(1e5)  # replay buffer size, (2560) (20 states, 20 action, 20 rewards, 20 next_states, 20 dones)
+BATCH_SIZE = args.batch_size #128        # minibatch size, 128
+GAMMA = args.gamma #0.99            # discount factor
+TAU = args.tau #1e-3              # for soft update of target parameters
+LR_ACTOR = args.actor_learn_rate #1e-4         # learning rate of the actor
+LR_CRITIC = args.critic_learn_rate #1e-3        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -46,16 +49,17 @@ class Agent():
         self.noise = OUNoise(action_size, random_seed) # Noise process
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed) # Replay memory
 
-    def step(self, state, action, reward, next_state, done):
+    def step(self, states, actions, rewards, next_states): #, done
         """Save experience in replay memory, and use random sample from buffer to learn."""
+
         # Save experience / reward
-        self.memory.add(state, action, reward, next_state, done) #300 memory added every episode
-        print("saved self.memory %d th" %len(self.memory))
+        self.memory.add(states, actions, rewards, next_states) #, done 300 memory added every episode
+        print("Filling up self.memory %d th" %len(self.memory))
 
         # Learn, if enough samples are available in memory
-        if len(self.memory) > BATCH_SIZE: #128
+        if len(self.memory) > BATCH_SIZE: #128 if 30>8
             experiences = self.memory.sample() #(2560) (20 states, 20 action, 20 rewards, 20 next_states, 20 dones)
-            print("\nsampled %d goes into NN to learn.." %len(experiences))
+            print("\nEnough buffer filled. Sampled %d goes into NN to learn.." %len(experiences))
             self.learn(experiences, GAMMA)
 
     def act(self, state, add_noise=True):
@@ -79,7 +83,13 @@ class Agent():
         critic_target(state, action) -> Q-value
         experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples
         gamma (float): discount factor """
-        states, actions, rewards, next_states, dones = experiences
+
+        #Original pendulum
+        #states, actions, rewards, next_states, dones = experiences
+
+        batch = self.memory.sample(self.batch_size)
+        states, actions, rewards, next_states = batch
+
 
         # ---------------------------- update critic ---------------------------- #
         actions_next = self.actor_target(next_states) # Get predicted next-state actions and Q values from target models
@@ -107,8 +117,7 @@ class Agent():
         θ_target = τ*θ_local + (1 - τ)*θ_target
         local_model: PyTorch model (weights will be copied from)
         target_model: PyTorch model (weights will be copied to)
-        tau (float): interpolation parameter
-        """
+        tau (float): interpolation parameter"""
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(tau*local_param.data + (1.0-tau)*target_param.data)
 

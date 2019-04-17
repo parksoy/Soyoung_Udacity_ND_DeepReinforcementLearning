@@ -29,34 +29,24 @@ from plotter_reacher import plot_scoreOverEpisodes
 #1.Initiate UnityEnvironmemt, call in all settings
 ####################################
 '''
-UnityTimeOutException: The Unity environment took too long to respond. Make sure that :
-	 The environment does not need user interaction to launch
-	 The Academy and the External Brain(s) are attached to objects in the Scene
-	 The environment and the Python interface have compatible versions.
+if error message shows UnityTimeOutException: The Unity environment took too long to respond.
+kill python kernel, kill unity from activity monitor
 '''
 env = UnityEnvironment(file_name='Reacher_multi.app', no_graphics=True)
-# get the default brain
-brain_name = env.brain_names[0]
+#env.close()
+brain_name = env.brain_names[0] # get the default brain
 brain = env.brains[brain_name]
-
 args=Args()
 
 ####################################
 #2. EDA:the State and Action Spaces
 ####################################
-# reset the environment
-env_info = env.reset(train_mode=True)[brain_name]
-
-# number of agents
-num_agents = len(env_info.agents)
+env_info = env.reset(train_mode=True)[brain_name] # reset the environment
+num_agents = len(env_info.agents) # number of agents
 print('Number of agents:', num_agents)
-
-# size of each action
-action_size = brain.vector_action_space_size
+action_size = brain.vector_action_space_size # size of each action
 print('Size of each action:', action_size)
-
-# examine the state space
-states = env_info.vector_observations
+states = env_info.vector_observations # examine the state space
 state_size = states.shape[1]
 print('There are {} agents. Each observes a state with length: {}'.format(states.shape[0], state_size))
 print('The state for the first agent looks like:', states[0])
@@ -88,7 +78,6 @@ env_info = env.reset(train_mode=True)[brain_name]
 agent = Agent(state_size=state_size, action_size=action_size, random_seed=2) #state_size 33, action_size 4
 states = env_info.vector_observations
 
-
 def train_storeExperience_getScore(n_episodes=args.num_episodes,
                                     max_t=args.max_steps,
                                     print_every=args.print_every):
@@ -113,7 +102,7 @@ def train_storeExperience_getScore(n_episodes=args.num_episodes,
             next_states = env_info.vector_observations
             rewards = env_info.rewards
             dones = env_info.local_done
-            agent.step(states, action, rewards, next_states, dones)
+            agent.step(states, actions, rewards, next_states) #, dones
             states = next_states
             score = score + np.average(rewards)
             if dones[0]:
@@ -130,8 +119,9 @@ def train_storeExperience_getScore(n_episodes=args.num_episodes,
     print("Done!")
     return scores
 
+args=Args()
+print(args.num_episodes)
 scores = train_storeExperience_getScore()
-
 
 #############################################
 #5. Evaluate a Trained Smart Agent
