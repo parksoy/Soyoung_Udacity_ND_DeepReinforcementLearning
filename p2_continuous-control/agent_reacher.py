@@ -51,9 +51,7 @@ class Agent():
 
     def step(self, states, actions, rewards, next_states): #, done
         """Save experience in replay memory, and use random sample from buffer to learn."""
-
         # Save experience / reward
-
         #Matt doll
         #list(zip)
         #self.memory.store_experience(experience)
@@ -71,10 +69,11 @@ class Agent():
 
     def act(self, states, add_noise=True):
         """Returns actions for given state as per current policy."""
-        states = torch.from_numpy(states).float().to(device)
+        #states = torch.from_numpy(states).float().to(device)
         self.actor_local.eval()
         with torch.no_grad():
-            actions = self.actor_local(states).cpu().data.numpy()
+            #actions = self.actor_local(states).cpu().data.numpy() #pendulum
+            actions = self.actor_local(states).detach().cpu().numpy()
         self.actor_local.train()
         if add_noise:
             actions += self.noise.sample()

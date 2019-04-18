@@ -78,9 +78,9 @@ env_info = env.reset(train_mode=True)[brain_name]
 agent = Agent(state_size=state_size, action_size=action_size, random_seed=2) #state_size 33, action_size 4
 states = env_info.vector_observations
 
-def train_storeExperience_getScore(n_episodes=args.num_episodes,
-                                    max_t=args.max_steps,
-                                    print_every=args.print_every):
+def train(n_episodes=args.num_episodes,
+          max_t=args.max_steps,
+          print_every=args.print_every):
     scores_deque = deque(maxlen=print_every)
     scores = []
     #agent.t_step=0
@@ -91,7 +91,8 @@ def train_storeExperience_getScore(n_episodes=args.num_episodes,
         print("episode #=", i_episode)
         print("####################")
         env_info = env.reset(train_mode=True)[brain_name]
-        states = env_info.vector_observations
+        states = torch.from_numpy(env_info.vector_observations).float()
+        print("in main train, states", type(states))
         agent.reset()
         score = 0
         for t in range(max_t):
@@ -99,9 +100,12 @@ def train_storeExperience_getScore(n_episodes=args.num_episodes,
             actions = agent.act(states) #(20,33)
             actions = np.clip(actions, -1, 1)
             env_info = env.step([actions])[brain_name]
-            next_states = env_info.vector_observations
+
+            next_states = torch.from_numpy(self.env_info.vector_observations).float() #env_info.vector_observations
             rewards = env_info.rewards
             dones = env_info.local_done
+
+
             agent.step(states, actions, rewards, next_states) #, dones
             states = next_states
             score = score + np.average(rewards)
@@ -114,18 +118,19 @@ def train_storeExperience_getScore(n_episodes=args.num_episodes,
         torch.save(agent.critic_local.state_dict(), 'p2_checkpoint_critic.pth')
         if i_episode % print_every == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
-    plot_scoreOverEpisodes(scores)
+    #plot_scoreOverEpisodes(scores)
     print("Final scores=",scores)
     print("Done!")
     return scores
 
 args=Args()
 print(args.num_episodes)
-scores = train_storeExperience_getScore()
+scores = train()
 
 #############################################
 #5. Evaluate a Trained Smart Agent
 #############################################
+
 agent.actor_local.load_state_dict(torch.load('p2_checkpoint_actor.pth'))
 agent.critic_local.load_state_dict(torch.load('p2_checkpoint_critic.pth'))
 
