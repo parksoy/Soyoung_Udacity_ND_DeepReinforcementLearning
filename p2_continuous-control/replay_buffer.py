@@ -16,24 +16,30 @@ class ReplayBuffer:
         self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
         self.batch_size = batch_size
         self.seed = random.seed(seed)
+        self.experience = namedtuple("Experience", field_names=["states", "actions", "rewards", "next_states"]) #, "done"
+
 
     def add(self, states, actions, rewards, next_states): #, done
         """Add a new experience to memory."""
-        experience = (states, actions, rewards, next_states)
-        namedtuple("Experience", field_names=["states", "actions", "rewards", "next_states"])
+        e = self.experience(states, actions, rewards, next_states) #, done
+        self.memory.append(e)
 
-        self.memory.append(experience)#return
 
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
         batch = random.sample(self.memory, k=self.batch_size)
         print("batch=",type(batch),len(batch)) #batch= <class 'list'> 8
 
-        states, actions, rewards, next_states = zip(*batch)
-        print("after unzip,states=" ,type(states), len(states)) #<class 'tuple'> 8
-        print("states=", type(states), len(states)) #<class 'tuple'> 8
-        print("actions=",type(actions))  # <class 'tuple'> 8 actions= (array([[0.07954566, 0.20505555, 0.145873  , 0.07304925],   [0.29717416, 0.31180978, 0.15491767, 0.11667927]], dtype=float32))
-        print("actions=",actions) #(array([[0.160445
+
+        print("[e.actions for e in batch]=", [e._fields for e in batch])
+        '''
+        type(e)=
+        [<class 'replay_buffer.Experience'>,
+        <class 'replay_buffer.Experience'>,...
+
+        [Experience(state=array([[ 0.00000000e+00,
+        -4.37113883e-08,  0
+        '''
 
 
         states = torch.cat(states).to(self.device)
@@ -41,13 +47,9 @@ class ReplayBuffer:
         rewards = torch.cat(rewards).to(self.device)
         next_states = torch.cat(next_states).to(self.device)
 
-        print("After unzip batch and torch cat:", type(states), len(states))
 
         '''
-        print("[e.actions for e in batch]=", [e for e in batch])
 
-        tmp_actions=torch.from_numpy(np.vstack([e.actions for e in batch if e is not None]))
-        print("tmp_actions=",tmp_actions)
 
         states = torch.from_numpy(np.vstack([e.states for e in batch if e is not None])).float().to(device)
         actions = torch.from_numpy(np.vstack([e.actions for e in batch if e is not None])).float().to(device)

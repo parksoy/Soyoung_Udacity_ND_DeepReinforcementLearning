@@ -54,6 +54,7 @@ print('The state for the first agent looks like:', states[0])
 ####################################
 #3.Take Random action
 ####################################
+'''
 env_info = env.reset(train_mode=False)[brain_name]     # reset the environment
 states = env_info.vector_observations                  # get the current state (for each agent)
 scores = np.zeros(num_agents)                          # initialize the score (for each agent)
@@ -69,7 +70,7 @@ while True:
     if np.any(dones):                                  # exit loop if episode finished
         break
 print('Total score (averaged over agents) this episode: %.2f' %(np.mean(scores)))
-
+'''
 ####################################
 #4. Train with DDPG
 ####################################
@@ -91,7 +92,8 @@ def train(n_episodes=args.num_episodes,
         print("episode #=", i_episode)
         print("####################")
         env_info = env.reset(train_mode=True)[brain_name]
-        states = torch.from_numpy(env_info.vector_observations).float()
+        states=env_info.vector_observations
+        #states = torch.from_numpy(env_info.vector_observations).float()
         print("in main train, states", type(states))
         agent.reset()
         score = 0
@@ -100,12 +102,9 @@ def train(n_episodes=args.num_episodes,
             actions = agent.act(states) #(20,33)
             actions = np.clip(actions, -1, 1)
             env_info = env.step([actions])[brain_name]
-
-            next_states = torch.from_numpy(self.env_info.vector_observations).float() #env_info.vector_observations
+            next_states = torch.from_numpy(env_info.vector_observations).float() #env_info.vector_observations
             rewards = env_info.rewards
             dones = env_info.local_done
-
-
             agent.step(states, actions, rewards, next_states) #, dones
             states = next_states
             score = score + np.average(rewards)
@@ -130,7 +129,7 @@ scores = train()
 #############################################
 #5. Evaluate a Trained Smart Agent
 #############################################
-
+'''
 agent.actor_local.load_state_dict(torch.load('p2_checkpoint_actor.pth'))
 agent.critic_local.load_state_dict(torch.load('p2_checkpoint_critic.pth'))
 
@@ -146,5 +145,5 @@ for t in range(10): #range(200)
     if dones:
         print("action=\n",action,"\nrewards=\n",rewards,"\ndones=\n",dones)
         break
-
+'''
 #env.close()

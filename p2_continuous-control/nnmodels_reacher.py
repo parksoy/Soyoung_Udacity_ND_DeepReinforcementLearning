@@ -19,7 +19,6 @@ class Actor(nn.Module):
 
     def __init__(self, state_size, action_size, seed, fc1_units=args.layer_sizes[0], fc2_units=args.layer_sizes[1]): #States[0] (33,)
         """Initialize parameters and build model.
-        Params
             state_size (int): Dimension of each state
             action_size (int): Dimension of each action
             seed (int): Random seed
@@ -37,15 +36,20 @@ class Actor(nn.Module):
         self.fc2.weight.data.uniform_(*hidden_init(self.fc2))
         self.fc3.weight.data.uniform_(-3e-3, 3e-3)
 
-    def forward(self, state):
+    def forward(self, states):
+        print("type(states) in nn forward=",type(states))
         """Build an actor (policy) network that maps states -> actions."""
-        x = F.relu(self.fc1(state))
+        if str(type(states))=="<class \'numpy.ndarray\'>":
+            states = torch.from_numpy(states).float().to(args.device)
+
+        print("type(states) in nn forward after conv to tensor=",type(states))
+        x = F.relu(self.fc1(states))
         x = F.relu(self.fc2(x))
         return F.tanh(self.fc3(x))
 
 class Critic(nn.Module):
     """Critic (Value) Model."""
-    
+
     def __init__(self, state_size, action_size, seed, fcs1_units=args.layer_sizes[0], fc2_units=args.layer_sizes[1]):
         """Initialize parameters and build model.
         Params
@@ -66,9 +70,10 @@ class Critic(nn.Module):
         self.fc2.weight.data.uniform_(*hidden_init(self.fc2))
         self.fc3.weight.data.uniform_(-3e-3, 3e-3)
 
-    def forward(self, state, action):
+    def forward(self, states, actions):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        xs = F.relu(self.fcs1(state))
-        x = torch.cat((xs, action), dim=1)
+        states = torch.from_numpy(statess).float().to(args.device)
+        xs = F.relu(self.fcs1(states))
+        x = torch.cat((xs, actions), dim=1)
         x = F.relu(self.fc2(x))
         return self.fc3(x)

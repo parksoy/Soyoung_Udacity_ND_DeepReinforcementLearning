@@ -71,9 +71,11 @@ class Agent():
         """Returns actions for given state as per current policy."""
         #states = torch.from_numpy(states).float().to(device)
         self.actor_local.eval()
+        #print("torch.no_grad()=",torch.no_grad())
         with torch.no_grad():
-            #actions = self.actor_local(states).cpu().data.numpy() #pendulum
-            actions = self.actor_local(states).detach().cpu().numpy()
+            actions = self.actor_local(states).cpu().data.numpy() #pendulum
+            #actions = self.actor_local(states).detach().cpu().numpy()
+        #print("in agent.act:", type(actions))
         self.actor_local.train()
         if add_noise:
             actions += self.noise.sample()
