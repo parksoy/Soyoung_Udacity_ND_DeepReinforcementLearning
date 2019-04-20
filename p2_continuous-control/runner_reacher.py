@@ -45,9 +45,11 @@ env_info = env.reset(train_mode=True)[brain_name] # reset the environment
 num_agents = len(env_info.agents) # number of agents
 print('Number of agents:', num_agents)
 action_size = brain.vector_action_space_size # size of each action
-print('Size of each action:', action_size)
+print('Size of each action:', action_size) #33
+print("action_size=",action_size) #4
 states = env_info.vector_observations # examine the state space
 state_size = states.shape[1]
+print("state_size=",state_size)
 print('There are {} agents. Each observes a state with length: {}'.format(states.shape[0], state_size))
 print('The state for the first agent looks like:', states[0])
 
@@ -105,7 +107,7 @@ def train(n_episodes=args.num_episodes,
             next_states = torch.from_numpy(env_info.vector_observations).float() #env_info.vector_observations
             rewards = env_info.rewards
             dones = env_info.local_done
-            agent.step(states, actions, rewards, next_states) #, dones
+            agent.step(states, actions, rewards, next_states, dones) #
             states = next_states
             score = score + np.average(rewards)
             if dones[0]:

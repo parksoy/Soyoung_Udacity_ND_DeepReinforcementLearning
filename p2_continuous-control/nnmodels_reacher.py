@@ -26,9 +26,9 @@ class Actor(nn.Module):
             fc2_units (int): Number of nodes in second hidden layer """
         super(Actor, self).__init__()
         self.seed = torch.manual_seed(seed)
-        self.fc1 = nn.Linear(state_size, fc1_units)
+        self.fc1 = nn.Linear(state_size, fc1_units) #33
         self.fc2 = nn.Linear(fc1_units, fc2_units)
-        self.fc3 = nn.Linear(fc2_units, action_size)
+        self.fc3 = nn.Linear(fc2_units, action_size) #4
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -72,7 +72,10 @@ class Critic(nn.Module):
 
     def forward(self, states, actions):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        states = torch.from_numpy(statess).float().to(args.device)
+        #states = torch.from_numpy(states).float().to(args.device)
+        if str(type(states))=="<class \'numpy.ndarray\'>":
+            states = torch.from_numpy(states).float().to(args.device)
+
         xs = F.relu(self.fcs1(states))
         x = torch.cat((xs, actions), dim=1)
         x = F.relu(self.fc2(x))

@@ -38,24 +38,24 @@ class Agent():
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
-        self.actor_target = Actor(state_size, action_size, random_seed).to(device)
+        self.actor_target = Actor(state_size, action_size, random_seed).to(device) #33,4
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=LR_ACTOR)
 
         # Critic Network (w/ Target Network)
         self.critic_local = Critic(state_size, action_size, random_seed).to(device)
-        self.critic_target = Critic(state_size, action_size, random_seed).to(device)
+        self.critic_target = Critic(state_size, action_size, random_seed).to(device) #33,4
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
 
         self.noise = OUNoise(action_size, random_seed) # Noise process
         self.memory = ReplayBuffer(action_size, BUFFER_SIZE, BATCH_SIZE, random_seed) # Replay memory
 
-    def step(self, states, actions, rewards, next_states): #, done
+    def step(self, states, actions, rewards, next_states, dones): #, done
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
         #Matt doll
         #list(zip)
         #self.memory.store_experience(experience)
-        self.memory.add(states, actions, rewards, next_states)
+        self.memory.add(states, actions, rewards, next_states, dones)
 
         #pendulum
         #self.memory.add(states, actions, rewards, next_states) #, done 300 memory added every episode
@@ -95,12 +95,17 @@ class Agent():
         #Original pendulum
         #states, actions, rewards, next_states, dones = experiences
 
-        batch = self.memory.sample(self.batch_size)
-        states, actions, rewards, next_states = batch
+        batch = self.memory.sample()
+        states, actions, rewards, next_states, dones = batch
+        print("wHAT IS DONEs=", type(dones), len(dones), dones) #8
+        print("next_states=",type(next_states),len(next_states),next_states) #160 tensor
 
         # ---------------------------- update critic ---------------------------- #
         actions_next = self.actor_target(next_states) # Get predicted next-state actions and Q values from target models
+        print("actions_next=", type(actions_next),len(actions_next),actions_next) #160 tensor
         Q_targets_next = self.critic_target(next_states, actions_next)
+        print("rewards=", type(rewards), len(rewards),rewards) #8
+        print("Q_targets_next=", type(Q_targets_next), len(Q_targets_next), Q_targets_next) #160
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones)) # Compute Q targets for current states (y_i)
         Q_expected = self.critic_local(states, actions) # Compute critic loss
         critic_loss = F.mse_loss(Q_expected, Q_targets)
