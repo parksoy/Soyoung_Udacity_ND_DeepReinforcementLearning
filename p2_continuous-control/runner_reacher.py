@@ -28,12 +28,7 @@ from plotter_reacher import plot_scoreOverEpisodes
 ####################################
 #1.Initiate UnityEnvironmemt, call in all settings
 ####################################
-'''
-if error message shows UnityTimeOutException: The Unity environment took too long to respond.
-kill python kernel, kill unity from activity monitor
-'''
 env = UnityEnvironment(file_name='Reacher_multi.app', no_graphics=True)
-#env.close()
 brain_name = env.brain_names[0] # get the default brain
 brain = env.brains[brain_name]
 args=Args()
@@ -86,32 +81,23 @@ def train(n_episodes=args.num_episodes,
           print_every=args.print_every):
     scores_deque = deque(maxlen=print_every)
     scores = []
-    #agent.t_step=0
-    print("Will start iteration of %d..." %args.num_episodes)
-
     for i_episode in range(1, n_episodes+1):
-        print("\n####################")
-        print("episode #=", i_episode)
-        print("####################")
         env_info = env.reset(train_mode=True)[brain_name]
         states=env_info.vector_observations
-        #states = torch.from_numpy(env_info.vector_observations).float()
-        print("in main train, states", type(states))
         agent.reset()
         score = 0
         for t in range(max_t):
-            print("  step#=",t)
             actions = agent.act(states) #(20,33)
             actions = np.clip(actions, -1, 1)
             env_info = env.step([actions])[brain_name]
-            next_states = torch.from_numpy(env_info.vector_observations).float() #env_info.vector_observations
+            next_states = env_info.vector_observations
+            #next_states = torch.from_numpy(env_info.vector_observations[0]).float() #env_info.vector_observations
             rewards = env_info.rewards
             dones = env_info.local_done
-            agent.step(states, actions, rewards, next_states, dones) #
+            agent.step(states, actions, rewards, next_states, dones, t) #
             states = next_states
             score = score + np.average(rewards)
-            if dones[0]:
-                break
+            if np.any(dones): break
         scores_deque.append(score)
         scores.append(score)
         print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)), end="")
@@ -119,13 +105,12 @@ def train(n_episodes=args.num_episodes,
         torch.save(agent.critic_local.state_dict(), 'p2_checkpoint_critic.pth')
         if i_episode % print_every == 0:
             print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_deque)))
-    #plot_scoreOverEpisodes(scores)
+    plot_scoreOverEpisodes(scores)
     print("Final scores=",scores)
     print("Done!")
     return scores
 
 args=Args()
-print(args.num_episodes)
 scores = train()
 
 #############################################
