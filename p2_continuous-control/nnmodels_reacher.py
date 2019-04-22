@@ -9,7 +9,7 @@ from config_settings import Args
 
 args=Args()
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print(device)
+print("device=",device)
 
 def hidden_init(layer):
     fan_in = layer.weight.data.size()[0]
@@ -76,7 +76,7 @@ class Critic(nn.Module):
 
     def forward(self, state, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        #states = torch.from_numpy(states).float().to(args.device)
+        
         if str(type(state))=="<class \'numpy.ndarray\'>":
             state = torch.from_numpy(state).float().to(device)
         state = self.bn0(state)
