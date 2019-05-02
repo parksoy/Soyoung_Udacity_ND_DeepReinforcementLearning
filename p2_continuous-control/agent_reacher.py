@@ -23,10 +23,10 @@ LR_ACTOR = args.actor_learn_rate #1e-4     # learning rate of the actor
 LR_CRITIC = args.critic_learn_rate #1e-3   # learning rate of the critic
 WEIGHT_DECAY = 0                           # L2 weight decay
 UPDATE_EVERY = args.update_every  #        # timesteps between updates
-NUM_UPDATES = args.NUM_UPDATES             # update num of update 
-EPSILON = 1.0                              # noise decay process
-EPSILON_DECAY = 1e-6                       # noise decay
-
+num_updates = args.num_updates             # update num of update
+noise_factor = args.noise_factor                             # noise decay process
+noise_factor_decay = args.noise_factor_decay                  # noise decay
+noise_sigma=args.noise_sigma
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -41,7 +41,7 @@ class Agent():
         self.state_size = state_size
         self.action_size = action_size
         self.seed = random.seed(random_seed)
-        self.epsilon = EPSILON
+        self.noise_factor = noise_factor
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
@@ -67,9 +67,9 @@ class Agent():
             self.memory.add(state, action, reward, next_state, done)
 
         # Learn, if enough samples are available in memory
-        if len(self.memory) > BATCH_SIZE and t % UPDATE_EVERY == 0: 
-            experiences = self.memory.sample() 
-            for _ in range(NUM_UPDATES):
+        if len(self.memory) > BATCH_SIZE and t % UPDATE_EVERY == 0:
+            experiences = self.memory.sample()
+            for _ in range(num_updates):
                 experiences = self.memory.sample()
                 self.learn(experiences, GAMMA)
 
@@ -82,7 +82,7 @@ class Agent():
             actions = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
-            actions += self.epsilon * self.noise.sample() #decay noise
+            actions += self.noise_factor * self.noise.sample() #decay noise
             #actions += self.noise.sample()
         return np.clip(actions, -1, 1)
 
@@ -101,7 +101,7 @@ class Agent():
 
         # ---------------------------- update critic ---------------------------- #
         next_states=next_states.to('cuda')
-        
+
         actions_next = self.actor_target(next_states) # Get predicted next-state actions and Q values from target models
         actions_next=actions_next.to('cuda')
         Q_targets_next = self.critic_target(next_states, actions_next)
@@ -127,9 +127,9 @@ class Agent():
         # ----------------------- update target networks ----------------------- #
         self.soft_update(self.critic_local, self.critic_target, TAU)
         self.soft_update(self.actor_local, self.actor_target, TAU)
-        
+
         # ---------------------------- decrease noise ---------- ------------- #
-        self.epsilon -= EPSILON_DECAY
+        self.noise_factor -= noise_factor_decay
         self.noise.reset()
 
     def soft_update(self, local_model, target_model, tau):
@@ -147,7 +147,7 @@ class Agent():
 
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
-    def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.2):
+    def __init__(self, size, seed, mu=0., theta=0.15, sigma=noise_sigma):
         """Initialize parameters and noise process."""
         self.mu = mu * np.ones(size)
         self.theta = theta
