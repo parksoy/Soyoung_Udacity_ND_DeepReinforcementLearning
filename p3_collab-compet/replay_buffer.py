@@ -2,8 +2,10 @@ from collections import deque, namedtuple
 import random
 import torch
 import numpy as np
+from config_settings import Args
 
-device = torch.device("cpu")
+args=Args()
+device = args.device #torch.device("cpu")
 
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
