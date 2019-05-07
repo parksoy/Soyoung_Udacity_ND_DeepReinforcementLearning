@@ -15,7 +15,7 @@ def hidden_init(layer):
 class Actor(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, seed, fc1_units=args.layer_sizes[0], fc2_units=args.layer_sizes[1], fc3_units=args.layer_sizes[2]):
+    def __init__(self, state_size, action_size, seed, fc1_units=args.layer_sizes[0], fc2_units=args.layer_sizes[1]): #, fc3_units=args.layer_sizes[2]
         """Initialize parameters and build model.
         state_size (int): Dimension of each state
         action_size (int): Dimension of each action
@@ -27,29 +27,29 @@ class Actor(nn.Module):
 
         self.fc1 = nn.Linear(state_size, fc1_units).to(device)
         self.fc2 = nn.Linear(fc1_units, fc2_units).to(device)
-        self.fc3 = nn.Linear(fc2_units, fc3_units).to(device)
-        self.fc4 = nn.Linear(fc3_units, action_size).to(device)
+        self.fc3 = nn.Linear(fc2_units, action_size).to(device)
+        #self.fc4 = nn.Linear(fc3_units, action_size).to(device)
 
         self.reset_parameters()
 
     def reset_parameters(self):
         self.fc1.weight.data.uniform_(*hidden_init(self.fc1))
         self.fc2.weight.data.uniform_(*hidden_init(self.fc2))
-        self.fc3.weight.data.uniform_(*hidden_init(self.fc3))
-        self.fc4.weight.data.uniform_(-3e-3, 3e-3)
+        self.fc3.weight.data.uniform_(-3e-3, 3e-3) #*hidden_init(self.fc3)
+        #self.fc4.weight.data.uniform_(-3e-3, 3e-3)
 
     def forward(self, state):
         """Build an actor (policy) network that maps states -> actions."""
         x = F.leaky_relu(self.fc1(state)).to(device)
         x = F.leaky_relu(self.fc2(x))
-        x = F.leaky_relu(self.fc3(x))
-        return torch.tanh(self.fc4(x))
+        #x = F.leaky_relu(self.fc3(x))
+        return torch.tanh(self.fc3(x))
 
 
 class Critic(nn.Module):
     """Critic (Value) Model."""
 
-    def __init__(self, state_size, action_size, seed, fcs1_units=128, fc2_units=128, fc3_units=128):
+    def __init__(self, state_size, action_size, seed, fcs1_units=128, fc2_units=128): #, fc3_units=128
         """Initialize parameters and build model.
         state_size (int): Dimension of each state
         action_size (int): Dimension of each action
@@ -61,16 +61,16 @@ class Critic(nn.Module):
 
         self.fcs1 = nn.Linear(state_size, fcs1_units).to(device)
         self.fc2 = nn.Linear(fcs1_units+action_size, fc2_units).to(device)
-        self.fc3 = nn.Linear(fc2_units, fc3_units).to(device)
-        self.fc4 = nn.Linear(fc3_units, 1).to(device)
+        self.fc3 = nn.Linear(fc2_units, 1).to(device)
+        #self.fc4 = nn.Linear(fc3_units, 1).to(device)
 
         self.reset_parameters()
 
     def reset_parameters(self):
         self.fcs1.weight.data.uniform_(*hidden_init(self.fcs1))
         self.fc2.weight.data.uniform_(*hidden_init(self.fc2))
-        self.fc3.weight.data.uniform_(*hidden_init(self.fc3))
-        self.fc4.weight.data.uniform_(-3e-3, 3e-3)
+        self.fc3.weight.data.uniform_(-3e-3, 3e-3) #*hidden_init(self.fc3)
+        #self.fc4.weight.data.uniform_(-3e-3, 3e-3)
 
     def forward(self, state, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
@@ -81,5 +81,5 @@ class Critic(nn.Module):
         xs = F.leaky_relu(self.fcs1(s))
         x = torch.cat((xs, a), dim=1)
         x = F.leaky_relu(self.fc2(x))
-        x = F.leaky_relu(self.fc3(x))
-        return self.fc4(x)
+        #x = F.leaky_relu(self.fc3(x))
+        return self.fc3(x)

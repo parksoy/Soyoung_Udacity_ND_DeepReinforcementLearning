@@ -20,7 +20,7 @@ LR_CRITIC = args.critic_learn_rate # 1e-4        # learning rate of the critic
 WEIGHT_DECAY = 0        # L2 weight decay
 UPDATE_EVERY = args.update_every #1        # how many steps to take before updating target networks
 num_updates = args.num_updates             # update num of update
-noise_factor = args.noise_factor                             # noise decay process
+noise_factor = args.noise_factor                              # noise decay process
 noise_factor_decay = args.noise_factor_decay                  # noise decay
 noise_sigma=args.noise_sigma
 device = args.device
@@ -63,7 +63,7 @@ class MADDPG():
         self.t_step = 0
 
     #def step(self, state, action, reward, next_state, done):
-    def step(self, state, action, reward, next_state, done, num_updates=1):
+    def step(self, state, action, reward, next_state, done, t):
         """Save experience in replay memory, and use random sample from buffer to learn."""
         # Save experience / reward
         self.memory.add(state, action, reward, next_state, done)
@@ -71,12 +71,13 @@ class MADDPG():
         # Learn every UPDATE_EVERY time steps.
         self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
-        if self.t_step == 0:
-            # Learn, if enough samples are available in memory
-            if len(self.memory) > BATCH_SIZE:
-                for _ in range(num_updates):
-                    experiences = self.memory.sample()
-                    self.learn(experiences, GAMMA)
+                    
+        # Learn, if enough samples are available in memory
+        if len(self.memory) > BATCH_SIZE and t % UPDATE_EVERY == 0:
+            experiences = self.memory.sample()
+            for _ in range(num_updates):
+                experiences = self.memory.sample()
+                self.learn(experiences, GAMMA)
 
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
@@ -140,6 +141,12 @@ class MADDPG():
         # ----------------------- update target networks ----------------------- #
         self.soft_update(self.critic_local, self.critic_target, TAU)
         self.soft_update(self.actor_local, self.actor_target, TAU)
+        
+        
+        # ---------------------------- decrease noise ---------- ------------- #
+        self.noise_factor -= noise_factor_decay
+        self.noise.reset()
+        
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
@@ -157,7 +164,7 @@ class MADDPG():
 
 class OUNoise:
 
-    def __init__(self, action_dimension, scale=0.1, mu=0, theta=0.15, sigma=0.2):
+    def __init__(self, action_dimension, scale=0.1, mu=0, theta=0.15, sigma=noise_sigma):
         """Initialize parameters and noise process."""
         self.action_dimension = action_dimension
         self.scale = scale
