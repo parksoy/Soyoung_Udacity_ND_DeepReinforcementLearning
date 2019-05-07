@@ -19,7 +19,7 @@ class Args:
 
     layer_sizes=[128,128,128]     #[400,300]
 
-    num_episodes=50          #2 #225  #225 Original DDPG pendulum : n_episodes=1000
+    num_episodes=3000          #2 #225  #225 Original DDPG pendulum : n_episodes=1000
     buffer_size=int(1e5) #3000000       #int(1e6) #10 #300000
 
     ##############################
