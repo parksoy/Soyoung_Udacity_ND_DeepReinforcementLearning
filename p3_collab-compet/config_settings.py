@@ -2,10 +2,10 @@ import torch
 
 class Args:
 
-    max_steps=1000             #4 #Original DDPG pendulum : n_episodes=1000 max_t=300
+    max_steps=2000             #4 #Original DDPG pendulum : n_episodes=1000 max_t=300
     batch_size=1024            #8 128
 
-    actor_learn_rate=0.001
+    actor_learn_rate=0.0001
     critic_learn_rate=0.001
 
     update_every=20  

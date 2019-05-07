@@ -39,6 +39,7 @@ class MADDPG():
         self.action_size = action_size
         self.n_agnets = n_agnets
         self.seed = random.seed(random_seed)
+        self.noise_factor = noise_factor
 
         # Actor Network (w/ Target Network)
         self.actor_local = Actor(state_size, action_size, random_seed).to(device)
@@ -88,7 +89,8 @@ class MADDPG():
             action = self.actor_local(state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
-            action += self.noise.sample()
+            action += self.noise_factor * self.noise.sample() #decay noise
+            #action += self.noise.sample()
         return np.clip(action, -1, 1)
 
     def reset(self):
