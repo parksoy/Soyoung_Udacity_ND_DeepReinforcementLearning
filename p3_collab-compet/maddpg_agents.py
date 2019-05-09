@@ -11,33 +11,41 @@ from config_settings import Args
 
 args=Args()
 
-BUFFER_SIZE = args.buffer_size#   # replay buffer size
-BATCH_SIZE = args.batch_size#128        # minibatch size
-GAMMA = args.gamma#0.99            # discount factor
-TAU = args.tau #1e-3              # for soft update of target parameters
-LR_ACTOR = args.actor_learn_rate #1e-5         # learning rate of the actor
-LR_CRITIC = args.critic_learn_rate # 1e-4        # learning rate of the critic
-WEIGHT_DECAY = 0        # L2 weight decay
-UPDATE_EVERY = args.update_every #1        # how many steps to take before updating target networks
-num_updates = args.num_updates             # update num of update
-noise_factor = args.noise_factor                              # noise decay process
-noise_factor_decay = args.noise_factor_decay                  # noise decay
+BUFFER_SIZE = args.buffer_size#          # replay buffer size
+BATCH_SIZE = args.batch_size#128         # minibatch size
+GAMMA = args.gamma#0.99                  # discount factor
+TAU = args.tau #1e-3                     # for soft update of target parameters
+LR_ACTOR = args.actor_learn_rate         # learning rate of the actor
+LR_CRITIC = args.critic_learn_rate       # learning rate of the critic
+WEIGHT_DECAY = 0                         # L2 weight decay
+UPDATE_EVERY = args.update_every         # how many steps to take before updating target networks
+num_updates = args.num_updates           # update num of update
+noise_factor = args.noise_factor                    # noise decay process
+noise_factor_decay = args.noise_factor_decay        # noise decay
 noise_sigma=args.noise_sigma
 device = args.device
 
 print("device=",device)
 
 class MADDPG():
-    """Interacts with and learns from the environment."""
-    def __init__(self, state_size, action_size, n_agnets, random_seed):
+    """wrapper agent that has two DDPG agents and they share replay buffer."""
+
+
+    def __init__(self,
+                 state_size,
+                 action_size,
+                 n_agents,
+                 random_seed):
+
         """Initialize an Agent object.
         state_size (int): dimension of each state
         action_size (int): dimension of each action
-        n_agnets (int): numer of agents
+        n_agents (int): numer of agents
         random_seed (int): random seed"""
+
         self.state_size = state_size
         self.action_size = action_size
-        self.n_agnets = n_agnets
+        self.n_agents = n_agents
         self.seed = random.seed(random_seed)
         self.noise_factor = noise_factor
 
@@ -47,8 +55,8 @@ class MADDPG():
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=LR_ACTOR)
 
         # Critic Network (w/ Target Network)
-        self.critic_local = Critic(state_size*self.n_agnets, action_size*self.n_agnets, random_seed).to(device)
-        self.critic_target = Critic(state_size*self.n_agnets, action_size*self.n_agnets, random_seed).to(device)
+        self.critic_local = Critic(state_size*self.n_agents, action_size*self.n_agents, random_seed).to(device)
+        self.critic_target = Critic(state_size*self.n_agents, action_size*self.n_agents, random_seed).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=LR_CRITIC, weight_decay=WEIGHT_DECAY)
 
         self.hard_copy(self.actor_target, self.actor_local)
@@ -63,9 +71,10 @@ class MADDPG():
         # Step counter for Agent
         self.t_step = 0
 
-    #def step(self, state, action, reward, next_state, done):
+
     def step(self, state, action, reward, next_state, done, t):
         """Save experience in replay memory, and use random sample from buffer to learn."""
+
         # Save experience / reward
         self.memory.add(state, action, reward, next_state, done)
 
@@ -80,6 +89,7 @@ class MADDPG():
                 experiences = self.memory.sample()
                 self.learn(experiences, GAMMA)
 
+
     def act(self, state, add_noise=True):
         """Returns actions for given state as per current policy."""
         state = torch.from_numpy(state).float().to(device)
@@ -93,10 +103,13 @@ class MADDPG():
             #action += self.noise.sample()
         return np.clip(action, -1, 1)
 
+
     def reset(self):
         self.noise.reset()
 
+
     def learn(self, experiences, gamma):
+
         """Update policy and value parameters using given batch of experience tuples.
         Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
         actor_target(state) -> action

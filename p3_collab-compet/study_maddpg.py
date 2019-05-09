@@ -64,7 +64,7 @@ class MADDPG():
                     self.learn(experiences, self.gamma)
 
     def act(self, all_states, add_noise=True):
-        all_actions = []# pass each agent's state from the environment and calculate it's action
+        all_actions = [] # pass each agent's state from the environment and calculate it's action
         for agent, state in zip(self.agents, all_states):
             if self.evaluation_only:
                 action = agent.act(state, noise_weight=self.noise_weight, add_noise=False)
@@ -75,7 +75,7 @@ class MADDPG():
         return np.array(all_actions).reshape(1, -1) # reshape 2x2 into 1x4 dim vector
 
     def learn(self, experiences, gamma):
-        all_next_actions = []# each agent uses it's own actor to calculate next_actions
+        all_next_actions = [] # each agent uses it's own actor to calculate next_actions
         for i, agent in enumerate(self.agents):
             _, _, _, next_states, _ = experiences[i]
             agent_id = torch.tensor([i]).to(device)
@@ -83,8 +83,8 @@ class MADDPG():
             next_action = agent.actor_target(next_state)
             all_next_actions.append(next_action)
 
-        # each agent uses it's own actor to calculate actions
-        all_actions = []
+
+        all_actions = [] # each agent uses it's own actor to calculate actions
         for i, agent in enumerate(self.agents):
             states, _, _, _, _ = experiences[i]
             agent_id = torch.tensor([i]).to(device)

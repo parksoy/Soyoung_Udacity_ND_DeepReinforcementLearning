@@ -1,7 +1,7 @@
 import torch
 
 class Args:
-    num_episodes=200          # Num of games/episode
+    num_episodes=10          # Num of games/episode
     max_steps=1000             # max num of times of steps in one episode
     batch_size=1024            # how many experiences are sampled and learned in batch processing to go through neural networks
 

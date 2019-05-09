@@ -7,6 +7,7 @@ from collections import namedtuple, deque
 from config_settings import Args
 
 args=Args()
+
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
     def __init__(self, action_size, buffer_size, batch_size, seed):
