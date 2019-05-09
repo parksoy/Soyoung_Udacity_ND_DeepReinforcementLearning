@@ -1,50 +1,26 @@
 import torch
 
 class Args:
+    num_episodes=200          # Num of games/episode
+    max_steps=1000             # max num of times of steps in one episode
+    batch_size=1024            # how many experiences are sampled and learned in batch processing to go through neural networks
 
-    max_steps=2000             #4 #Original DDPG pendulum : n_episodes=1000 max_t=300
-    batch_size=1024            #8 128
+    actor_learn_rate=0.0001    # actors learning rate
+    critic_learn_rate=0.001    # critic learning rate
 
-    actor_learn_rate=0.0001
-    critic_learn_rate=0.001
+    update_every=20            # frequency to learn with stability
+    num_updates=10             # how many times to learn during "update_every" times
 
-    update_every=20  
-    num_updates=10            #10
+    tau=0.005                  # soft update speed of target parameters
+    gamma=0.99                 # discount factor
 
-    tau=0.005                 ## for soft update of target parameters
-    gamma=0.99                # discount factor
+    noise_sigma=0.2            # noise spread
+    noise_factor_decay = 1e-6  # Noise decay speed
 
-    noise_sigma=0.2
-    noise_factor_decay = 1e-6
+    layer_sizes=[128,128]      # Neural Network unit size for first, second layers. ,128
 
-    layer_sizes=[128,128]     #,128
-
-    num_episodes=3000          #2 #225  #225 Original DDPG pendulum : n_episodes=1000
-    buffer_size=3000000     #int(1e6) #10 #300000
-
-    ##############################
-    #NOT SO IMPORTANT
-    ##############################
+    buffer_size=3000000        # replay buffer size
     noise_factor=1
-    print_every=100            #Original DDPG pendulum : print_every=100
+    print_every=100            # stdout print frequency
 
-    C=350
-    cpu=True
-    e=0.3                     # exploration rate
-    vmin=0.0
-    vmax=0.3
-    num_atoms=100
-    eval=True
-    force_eval=True
-
-    nographics=True
-    quiet=True
-    resume=True
-    rollout=5
-    save_every=10
-    log_every=50
-
-    latest=True
-    filename=None
-    save_dir='saves'
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")#'cpu'
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")   #automatically determine 'gpu' or 'cpu'

@@ -72,7 +72,7 @@ class MADDPG():
         # Learn every UPDATE_EVERY time steps.
         self.t_step = (self.t_step + 1) % UPDATE_EVERY
 
-                    
+
         # Learn, if enough samples are available in memory
         if len(self.memory) > BATCH_SIZE and t % UPDATE_EVERY == 0:
             experiences = self.memory.sample()
@@ -109,12 +109,12 @@ class MADDPG():
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
         actions_next = self.actor_target(next_states)
-        actions_next=actions_next.to('cuda')
+        actions_next=actions_next.to(device)
         Q_targets_next = self.critic_target(next_states, actions_next)
-        rewards=rewards.to('cuda')
-        dones=dones.to('cuda')
-        states=states.to('cuda')
-        actions=actions.to('cuda')
+        rewards=rewards.to(device)
+        dones=dones.to(device)
+        states=states.to(device)
+        actions=actions.to(device)
 
         # Compute Q targets for current states (y_i)
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
@@ -143,12 +143,12 @@ class MADDPG():
         # ----------------------- update target networks ----------------------- #
         self.soft_update(self.critic_local, self.critic_target, TAU)
         self.soft_update(self.actor_local, self.actor_target, TAU)
-        
-        
+
+
         # ---------------------------- decrease noise ---------- ------------- #
         self.noise_factor -= noise_factor_decay
         self.noise.reset()
-        
+
 
     def soft_update(self, local_model, target_model, tau):
         """Soft update model parameters.
