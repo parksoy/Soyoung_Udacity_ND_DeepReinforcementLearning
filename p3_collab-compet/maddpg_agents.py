@@ -198,22 +198,22 @@ class MADDPG():
         self.evaluation_only = evaluation_only
 
         # create two agents, each with their own actor and critic
-        models = [model.DoubleAgent(n_agents=n_agents) for _ in range(n_agents)]
+        models = [DoubleAgent(n_agents=n_agents) for _ in range(n_agents)]
         self.agents = [DDPG(0, models[0]), DDPG(1, models[1])]
 
         # create shared replay buffer
         self.memory = ReplayBuffer(action_size, self.buffer_size, self.batch_size, seed)
 
-        if load_file:
-            for i, save_agent in enumerate(self.agents):
-                actor_file = torch.load(load_file + '.' + str(i) + '.actor.pth', map_location='cpu')
-                critic_file = torch.load(load_file + '.' + str(i) + '.critic.pth', map_location='cpu')
-                save_agent.actor_local.load_state_dict(actor_file)
-                save_agent.actor_target.load_state_dict(actor_file)
-                save_agent.critic_local.load_state_dict(critic_file)
-                save_agent.critic_target.load_state_dict(critic_file)
-            print('Loaded: {}.actor.pth'.format(load_file))
-            print('Loaded: {}.critic.pth'.format(load_file))
+        # if load_file:
+        #     for i, save_agent in enumerate(self.agents):
+        #         actor_file = torch.load(load_file + '.' + str(i) + '.actor.pth', map_location='cpu')
+        #         critic_file = torch.load(load_file + '.' + str(i) + '.critic.pth', map_location='cpu')
+        #         save_agent.actor_local.load_state_dict(actor_file)
+        #         save_agent.actor_target.load_state_dict(actor_file)
+        #         save_agent.critic_local.load_state_dict(critic_file)
+        #         save_agent.critic_target.load_state_dict(critic_file)
+        #     print('Loaded: {}.actor.pth'.format(load_file))
+        #     print('Loaded: {}.critic.pth'.format(load_file))
 
     def step(self, all_states, all_actions, all_rewards, all_next_states, all_dones):
         all_states = all_states.reshape(1, -1)  # reshape 2x24 into 1x48 dim vector
@@ -260,6 +260,27 @@ class MADDPG():
         for i, agent in enumerate(self.agents):# each agent learns from it's experience sample
             agent.learn(i, experiences[i], gamma, all_next_actions, all_actions)
 
+
+
+
+class DoubleAgent():
+
+    """Container for actor and critic along with respective target networks.
+    Each actor takes a state input for a single agent.
+    Each critic takes a concatentation of the states and actions from all agents."""
+
+    def __init__(self, n_agents=2, state_size=24, action_size=2, seed=0):
+
+        """n_agents (int): number of distinct agents
+        state_size (int): number of state dimensions for a single agent
+        action_size (int): number of action dimensions for a single agent
+        seed (int): random seed"""
+
+        self.actor_local = Actor(state_size, action_size, seed).to(device)
+        self.actor_target = Actor(state_size, action_size, seed).to(device)
+        critic_input_size = state_size*n_agents
+        self.critic_local = Critic(critic_input_size, action_size*n_agents, seed).to(device)
+        self.critic_target = Critic(critic_input_size, action_size*n_agents, seed).to(device)
 
 
 class OUNoise:

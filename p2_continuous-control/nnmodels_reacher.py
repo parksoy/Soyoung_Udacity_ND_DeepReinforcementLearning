@@ -84,29 +84,3 @@ class Critic(nn.Module):
         x = torch.cat((xs, action), dim=1)
         x = F.relu(self.fc2(x))
         return self.fc3(x)
-
-
-
-
-class DoubleAgent():
-
-    """Container for actor and critic along with respective target networks.
-    Each actor takes a state input for a single agent.
-    Each critic takes a concatentation of the states and actions from all agents."""
-
-    def __init__(self, n_agents=2, state_size=24, action_size=2, seed=0):
-
-        """n_agents (int): number of distinct agents
-        state_size (int): number of state dimensions for a single agent
-        action_size (int): number of action dimensions for a single agent
-        seed (int): random seed"""
-
-        self.actor_local = Actor(state_size, action_size, seed).to(device)
-        self.actor_target = Actor(state_size, action_size, seed).to(device)
-        critic_input_size = state_size*n_agents
-        self.critic_local = Critic(critic_input_size, action_size*n_agents, seed).to(device)
-        self.critic_target = Critic(critic_input_size, action_size*n_agents, seed).to(device)
-
-        # Print model
-        print("self.actor_local=", self.actor_local)
-        print("self.critic_local=", self.critic_local)
