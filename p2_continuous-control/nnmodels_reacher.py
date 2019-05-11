@@ -34,7 +34,7 @@ class Actor(nn.Module):
         self.fc2 = nn.Linear(fc1_units, fc2_units).to(device)
         self.bn2 = nn.BatchNorm1d(fc2_units).to(device)
         self.fc3 = nn.Linear(fc2_units, action_size).to(device) #4
-        self.reset_parameters() 
+        self.reset_parameters()
 
     def reset_parameters(self):
         self.fc1.weight.data.uniform_(*hidden_init(self.fc1))
@@ -46,7 +46,7 @@ class Actor(nn.Module):
         if str(type(state))=="<class \'numpy.ndarray\'>":
             states = torch.from_numpy(states).float().to(device)
 
-        x = self.bn0(state).to('cuda')
+        x = self.bn0(state).to(device)
         x = F.relu(self.bn1(self.fc1(x))) #x = F.relu(self.fc1(state))
         x = F.relu(self.bn2(self.fc2(x))) #x = F.relu(self.fc2(x))
         return F.tanh(self.fc3(x))
@@ -62,7 +62,7 @@ class Critic(nn.Module):
             fcs1_units (int): Number of nodes in the first hidden layer
             fc2_units (int): Number of nodes in the second hidden layer """
         super(Critic, self).__init__()
-        self.seed = torch.manual_seed(seed) 
+        self.seed = torch.manual_seed(seed)
         self.bn0 = nn.BatchNorm1d(state_size).to(device)
         self.fcs1 = nn.Linear(state_size, fcs1_units).to(device)
         self.fc2 = nn.Linear(fcs1_units+action_size, fc2_units).to(device)
@@ -76,7 +76,7 @@ class Critic(nn.Module):
 
     def forward(self, state, action):
         """Build a critic (value) network that maps (state, action) pairs -> Q-values."""
-        
+
         if str(type(state))=="<class \'numpy.ndarray\'>":
             state = torch.from_numpy(state).float().to(device)
         state = self.bn0(state)
@@ -84,3 +84,29 @@ class Critic(nn.Module):
         x = torch.cat((xs, action), dim=1)
         x = F.relu(self.fc2(x))
         return self.fc3(x)
+
+
+
+
+class DoubleAgent():
+
+    """Container for actor and critic along with respective target networks.
+    Each actor takes a state input for a single agent.
+    Each critic takes a concatentation of the states and actions from all agents."""
+
+    def __init__(self, n_agents=2, state_size=24, action_size=2, seed=0):
+
+        """n_agents (int): number of distinct agents
+        state_size (int): number of state dimensions for a single agent
+        action_size (int): number of action dimensions for a single agent
+        seed (int): random seed"""
+
+        self.actor_local = Actor(state_size, action_size, seed).to(device)
+        self.actor_target = Actor(state_size, action_size, seed).to(device)
+        critic_input_size = state_size*n_agents
+        self.critic_local = Critic(critic_input_size, action_size*n_agents, seed).to(device)
+        self.critic_target = Critic(critic_input_size, action_size*n_agents, seed).to(device)
+
+        # Print model
+        print("self.actor_local=", self.actor_local)
+        print("self.critic_local=", self.critic_local)
