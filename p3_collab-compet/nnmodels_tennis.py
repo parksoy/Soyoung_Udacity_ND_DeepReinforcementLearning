@@ -13,14 +13,13 @@ def hidden_init(layer):
     lim = 1. / np.sqrt(fan_in)
     return (-lim, lim)
 
-
 class Actor(nn.Module):
     """Actor (Policy) Model."""
 
-    def __init__(self, state_size, action_size, seed, 
-                 fc1_units=args.layer_sizes[0], 
+    def __init__(self, state_size, action_size, seed,
+                 fc1_units=args.layer_sizes[0],
                  fc2_units=args.layer_sizes[1]):
-        
+
         super(Actor, self).__init__()
         self.seed = torch.manual_seed(seed)
 
@@ -47,7 +46,7 @@ class Actor(nn.Module):
 class Critic(nn.Module):
     """Critic (Value) Model."""
 
-    def __init__(self, state_size, action_size, seed, 
+    def __init__(self, state_size, action_size, seed,
                  fcs1_units=args.layer_sizes[0],
                  fc2_units=args.layer_sizes[1]):
         super(Critic, self).__init__()

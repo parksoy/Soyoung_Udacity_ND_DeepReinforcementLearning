@@ -31,12 +31,11 @@ print("device=",device)
 
 
 class DDPG():
-    """DDPG agent with own actor and critic."""
-
+    """DDPG agent with one actor and one critic."""
     def __init__(self, id, model, action_size=2, seed=0,
-                 tau=1e-3,
-                 lr_actor=1e-3,
-                 lr_critic=1e-3,
+                 tau=TAU,
+                 lr_actor=LR_ACTOR,
+                 lr_critic=LR_CRITIC,
                  weight_decay=0.0000):
 
         """model: model object
@@ -53,8 +52,6 @@ class DDPG():
         self.tau = tau
         self.lr_actor = lr_actor
         self.lr_critic = lr_critic
-
-        # track stats for tensorboard logging
         self.critic_loss = 0
         self.actor_loss = 0
         self.noise_val = 0
@@ -80,7 +77,6 @@ class DDPG():
 
         state = torch.from_numpy(state).float().to(device)
 
-        # calculate action values
         self.actor_local.eval()
         with torch.no_grad():
             action = self.actor_local(state.reshape(1, -1)).cpu().data.numpy()
@@ -90,10 +86,8 @@ class DDPG():
             action += self.noise_val
         return np.clip(action, -1, 1)
 
-
     def reset(self):
         self.noise.reset()
-
 
     def learn(self, agent_id, experiences, gamma, all_next_actions, all_actions):
         """Update policy and value parameters using given batch of experience tuples.
@@ -198,22 +192,11 @@ class MADDPG():
         self.evaluation_only = evaluation_only
 
         # create two agents, each with their own actor and critic
-        models = [DoubleAgent(n_agents=n_agents) for _ in range(n_agents)]
+        models = [MultiAgents(n_agents=n_agents) for _ in range(n_agents)]
         self.agents = [DDPG(0, models[0]), DDPG(1, models[1])]
 
         # create shared replay buffer
         self.memory = ReplayBuffer(action_size, self.buffer_size, self.batch_size, seed)
-
-        # if load_file:
-        #     for i, save_agent in enumerate(self.agents):
-        #         actor_file = torch.load(load_file + '.' + str(i) + '.actor.pth', map_location='cpu')
-        #         critic_file = torch.load(load_file + '.' + str(i) + '.critic.pth', map_location='cpu')
-        #         save_agent.actor_local.load_state_dict(actor_file)
-        #         save_agent.actor_target.load_state_dict(actor_file)
-        #         save_agent.critic_local.load_state_dict(critic_file)
-        #         save_agent.critic_target.load_state_dict(critic_file)
-        #     print('Loaded: {}.actor.pth'.format(load_file))
-        #     print('Loaded: {}.critic.pth'.format(load_file))
 
     def step(self, all_states, all_actions, all_rewards, all_next_states, all_dones):
         all_states = all_states.reshape(1, -1)  # reshape 2x24 into 1x48 dim vector
@@ -223,13 +206,13 @@ class MADDPG():
         # Learn every update_every time steps.
         self.t_step = (self.t_step + 1) % self.update_every
         if self.t_step == 0 and self.evaluation_only == False:
-            if len(self.memory) > self.batch_size: # If enough samples are available in memory, get random subset and learn
+            if len(self.memory) > self.batch_size:
                 for _ in range(NUM_UPDATES):
-                    experiences = [self.memory.sample() for _ in range(self.n_agents)]# each agent does it's own sampling from the replay buffer
+                    experiences = [self.memory.sample() for _ in range(self.n_agents)]
                     self.learn(experiences, self.gamma)
 
     def act(self, all_states, add_noise=True):
-        all_actions = [] # pass each agent's state from the environment and calculate it's action
+        all_actions = []
         for agent, state in zip(self.agents, all_states):
             if self.evaluation_only:
                 action = agent.act(state, noise_weight=self.noise_weight, add_noise=False)
@@ -240,7 +223,7 @@ class MADDPG():
         return np.array(all_actions).reshape(1, -1) # reshape 2x2 into 1x4 dim vector
 
     def learn(self, experiences, gamma):
-        all_next_actions = [] # each agent uses it's own actor to calculate next_actions
+        all_next_actions = []
         for i, agent in enumerate(self.agents):
             _, _, _, next_states, _ = experiences[i]
             agent_id = torch.tensor([i]).to(device)
@@ -261,9 +244,7 @@ class MADDPG():
             agent.learn(i, experiences[i], gamma, all_next_actions, all_actions)
 
 
-
-
-class DoubleAgent():
+class MultiAgents():
 
     """Container for actor and critic along with respective target networks.
     Each actor takes a state input for a single agent.
@@ -281,7 +262,6 @@ class DoubleAgent():
         critic_input_size = state_size*n_agents
         self.critic_local = Critic(critic_input_size, action_size*n_agents, seed).to(device)
         self.critic_target = Critic(critic_input_size, action_size*n_agents, seed).to(device)
-
 
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
